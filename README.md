@@ -1,6 +1,6 @@
 # Hi, I'm Nithh! 👋
 
-I'm Kabir, a Discord Bot Developer, and here is my advanced Discord Music Bot.
+I'm Nithh, a Discord Bot Developer, and here is my advanced Discord Music Bot.
 
 ## **Installation | How to use the Bot**
 
