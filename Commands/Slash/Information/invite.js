@@ -32,7 +32,7 @@ module.exports = {
     client.embed(
       interaction,
       `[\`Click to Invite Me\`](${links.inviteURL.replace(
-        "BOTID",
+        "CLIENTID",
         client.user.id
       )})`
     );
