@@ -29,7 +29,7 @@ module.exports = {
     client.embed(
       message,
       `[\`Click to Invite Me\`](${links.inviteURL.replace(
-        "BOTID",
+        "CLIENTID",
         client.user.id
       )})`
     );
