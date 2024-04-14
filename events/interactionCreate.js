@@ -1,22 +1,26 @@
 const client = require("../index");
-const { cooldown, check_dj, databasing } = require("../handlers/functions");
-const { emoji } = require("../settings/config");
 const {
-  ApplicationCommandOptionType,
-  PermissionsBitField,
-} = require("discord.js");
+  cooldown,
+  check_dj,
+  databasing,
+  getPermissionName,
+} = require("../handlers/functions");
+const { emoji } = require("../settings/config");
+const { ApplicationCommandOptionType } = require("discord.js");
 
 client.on("interactionCreate", async (interaction) => {
   // Slash Command Handling
   if (interaction.isCommand()) {
     await interaction.deferReply().catch((e) => {});
     await databasing(interaction.guildId, interaction.user.id);
+
     const cmd = client.commands.get(interaction.commandName);
-    if (!cmd)
+    if (!cmd) {
       return client.embed(
         interaction,
         `${emoji.ERROR} \`${interaction.commandName}\` Command Not Found `
       );
+    }
     const args = [];
     for (let option of interaction.options.data) {
       if (option.type === ApplicationCommandOptionType.Subcommand) {
@@ -26,9 +30,6 @@ client.on("interactionCreate", async (interaction) => {
         });
       } else if (option.value) args.push(option.value);
     }
-    interaction.member = interaction.guild.members.cache.get(
-      interaction.user.id
-    );
 
     if (cmd) {
       // checking user perms
@@ -36,23 +37,20 @@ client.on("interactionCreate", async (interaction) => {
       let voiceChannel = interaction.member.voice.channel;
       let botChannel = interaction.guild.members.me.voice.channel;
       let checkDJ = await check_dj(client, interaction.member, queue?.songs[0]);
-      if (
-        !interaction.member.permissions.has(
-          PermissionsBitField.resolve(cmd.userPermissions)
-        )
-      ) {
+
+      if (!interaction.member.permissions.has(cmd.userPermissions)) {
+        const needPerms = getPermissionName(cmd.userPermissions);
         return client.embed(
           interaction,
-          `You Don't Have Permission to Use \`${cmd.name}\` Command!!`
+          `You Don't Have \`${needPerms}\` Permission to Use \`${cmd.name}\` Command!!`
         );
       } else if (
-        !interaction.guild.members.me.permissions.has(
-          PermissionsBitField.resolve(cmd.botPermissions)
-        )
+        !interaction.guild.members.me.permissions.has(cmd.botPermissions)
       ) {
+        const needPerms = getPermissionName(cmd.botPermissions);
         return client.embed(
           interaction,
-          `I Don't Have Permission to Run \`${cmd.name}\` Command!!`
+          `I Don't Have \`${needPerms}\` Permission to Run \`${cmd.name}\` Command!!`
         );
       } else if (cooldown(interaction, cmd)) {
         return client.embed(
@@ -84,7 +82,8 @@ client.on("interactionCreate", async (interaction) => {
           `${emoji.ERROR} You are not DJ and also you are not song requester..`
         );
       } else {
-        cmd.run(client, interaction, args, queue);
+        await interaction.deferReply().catch((e) => {});
+        await cmd.run(client, interaction, args, queue);
       }
     }
   }
