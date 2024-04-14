@@ -9,7 +9,8 @@ const {
   ButtonStyle,
 } = require("discord.js");
 const client = require("../index");
-const { Song } = require("distube");
+const { Song, Queue } = require("distube");
+const JUGNU = require("./Client");
 
 /**
  *
@@ -320,6 +321,10 @@ function msToDuration(ms) {
   return years + months + days + hours + minutes + seconds;
 }
 
+/**
+ *
+ * @param {Queue} queue
+ */
 async function skip(queue) {
   if (queue.songs.length <= 1) {
     if (!queue.autoplay) {
@@ -344,6 +349,64 @@ function formatBytes(x) {
   return n.toFixed(n < 10 && l > 0 ? 1 : 0) + " " + units[l];
 }
 
+function getPermissionName(permissionValue) {
+  const permissionList = Object.entries(PermissionFlagsBits);
+  for (const [permissionName, permissionBit] of permissionList) {
+    if (permissionValue === permissionBit) {
+      return permissionName;
+    }
+  }
+  return null; // Permission not found
+}
+
+function arraysEqual(a, b) {
+  if (a === b) return true;
+  if (a == null || b == null) return false;
+  if (a.length !== b.length) return false;
+
+  for (var i = 0; i < a.length; ++i) {
+    if (a[i] !== b[i]) return false;
+  }
+  return true;
+}
+
+/**
+ *
+ * @param {JUGNU} client
+ */
+async function registerSlashCommands(client) {
+  const { slash } = client.config;
+  const commands = client.commands.map((cmd) => {
+    return {
+      name: cmd.name,
+      description: cmd.description,
+      options: cmd.options,
+      type: cmd.type,
+    };
+  });
+
+  try {
+    if (slash.global) {
+      console.log("Started refreshing application (/) commands.");
+      await client.application.commands.set(commands);
+      console.log("Successfully reloaded application (/) commands.");
+    } else {
+      console.log("Started refreshing guild (/) commands.");
+      for (const guildID of slash.guildIDS) {
+        const guild = await client.guilds.fetch(guildID);
+        if (!guild) {
+          console.error(`Guild with ID ${guildID} not found.`);
+          continue;
+        }
+        await guild.commands.set(commands);
+      }
+      console.log("Successfully reloaded guild (/) commands.");
+    }
+  } catch (error) {
+    console.error("Error registering slash commands:", error);
+  }
+}
+
 module.exports = {
   cooldown,
   check_dj,
@@ -354,4 +417,7 @@ module.exports = {
   msToDuration,
   skip,
   formatBytes,
+  getPermissionName,
+  arraysEqual,
+  registerSlashCommands,
 };
