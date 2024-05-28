@@ -66,13 +66,9 @@ node index.js
 - DJ system
 - Works on Replit and other VPS
 
-## Music Bot Dashboard Setup
-
-[Click Here](https://github.com/kabirsingh2004/JUGNU-Dashboard/blob/main/README.md)
-
 ## Feedback & Support
 
-If you have any feedback or need assistance, please join our [Discord Server](https://discord.gg/FuKfAREn9f).
+If you have any feedback or need assistance, please join our [Discord Server](https://discord.gg/gJF964Bt95).
 
 ## License
 
